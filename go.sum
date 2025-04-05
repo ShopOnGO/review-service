@@ -1,3 +1,5 @@
+github.com/ShopOnGO/review-proto v0.0.0-20250405172605-2c35c8dc5d4d h1:pLAwJ7C8wpmfZOOCmt5IxyY39SBIMrjIyu6jfKsS9R8=
+github.com/ShopOnGO/review-proto v0.0.0-20250405172605-2c35c8dc5d4d/go.mod h1:YCXt/K0PONYOP2uoWW8ImJgT7taE7/a1W2mxg9Y36xM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

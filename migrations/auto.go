@@ -3,6 +3,8 @@ package migrations
 import (
 	"os"
 
+	"github.com/ShopOnGO/review-service/internal/question"
+	"github.com/ShopOnGO/review-service/internal/review"
 	"github.com/ShopOnGO/review-service/pkg/logger"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -34,7 +36,7 @@ func RunMigrations() error {
 		panic(err)
 	}
 
-	err = db.AutoMigrate()
+	err = db.AutoMigrate(review.Review{}, question.Question{})
 	if err != nil {
 		return err
 	}

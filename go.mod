@@ -3,6 +3,7 @@ module github.com/ShopOnGO/review-service
 go 1.23.3
 
 require (
+	github.com/ShopOnGO/review-proto v0.0.0-20250405172605-2c35c8dc5d4d
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
 	google.golang.org/grpc v1.71.1
