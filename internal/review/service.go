@@ -1,15 +1,11 @@
 package review
 
 import (
-	"context"
+	"fmt"
 	"github.com/ShopOnGO/review-service/pkg/logger"
-	pb "github.com/ShopOnGO/review-proto/pkg/service"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type ReviewService struct {
-	pb.UnimplementedReviewServiceServer
 	ReviewRepository *ReviewRepository
 }
 
@@ -19,157 +15,96 @@ func NewReviewService(reviewRepo *ReviewRepository) *ReviewService {
 	}
 }
 
-func (s *ReviewService) AddReview(ctx context.Context, req *pb.AddReviewRequest) (*pb.AddReviewResponse, error) {
-	if req.ProductVariantId == 0 || req.UserId == 0 {
-		return &pb.AddReviewResponse{
-			Success: false,
-			Message: "Invalid product_variant_id or user_id",
-		}, status.Errorf(codes.InvalidArgument, "Invalid product_variant_id or user_id")
+func (s *ReviewService) AddReview(productVariantID, userID uint, rating int16, comment string) (*Review, error) {
+	if productVariantID == 0 || userID == 0 {
+		return nil, fmt.Errorf("invalid product_variant_id or user_id")
 	}
 
 	review := &Review{
-		ProductVariantID: uint(req.ProductVariantId),
-		UserID:           uint(req.UserId),
-		Rating:           int16(req.Rating),
-		Comment:          req.Comment,
+		ProductVariantID: productVariantID,
+		UserID:           userID,
+		Rating:           rating,
+		Comment:          comment,
 	}
 
-	err := s.ReviewRepository.CreateReview(review)
-	if err != nil {
+	if err := s.ReviewRepository.CreateReview(review); err != nil {
 		logger.Errorf("Error creating review: %v", err)
-		return &pb.AddReviewResponse{
-			Success: false,
-			Message: err.Error(),
-		}, status.Errorf(codes.Internal, "Error creating review: %v", err)
+		return nil, err
 	}
 
-	return &pb.AddReviewResponse{
-		Success: true,
-		Message: "Review created successfully",
-		Review: &pb.Review{
-			Model: &pb.Model{
-				Id: uint32(review.ID),
-			},
-			ProductVariantId: uint32(review.ProductVariantID),
-			UserId:           uint32(review.UserID),
-			Rating:           int32(review.Rating),
-			Comment:          review.Comment,
-		},
-	}, nil
+	return review, nil
 }
 
-func (s *ReviewService) GetReviews(ctx context.Context, req *pb.GetReviewsRequest) (*pb.GetReviewsResponse, error) {
-	reviews, err := s.ReviewRepository.GetReviewsByProductVariantID(uint(req.ProductVariantId))
+func (s *ReviewService) GetReviews(productVariantID uint) ([]Review, error) {
+	reviews, err := s.ReviewRepository.GetReviewsByProductVariantID(productVariantID)
 	if err != nil {
 		logger.Errorf("Error getting reviews: %v", err)
-		return &pb.GetReviewsResponse{
-			Reviews: nil,
-		}, status.Errorf(codes.Internal, "Error getting reviews: %v", err)
+		return nil, err
 	}
-
-	reviewList := make([]*pb.Review, len(reviews))
-	for i, review := range reviews {
-		reviewList[i] = &pb.Review{
-			Model: &pb.Model{
-				Id: uint32(review.ID),
-			},
-			ProductVariantId: uint32(review.ProductVariantID),
-			UserId:           uint32(review.UserID),
-			Rating:           int32(review.Rating),
-			Comment:          review.Comment,
-		}
-	}
-
-	return &pb.GetReviewsResponse{
-		Reviews: reviewList,
-	}, nil
+	return reviews, nil
 }
 
-func (s *ReviewService) UpdateReview(ctx context.Context, req *pb.UpdateReviewRequest) (*pb.UpdateReviewResponse, error) {
-	if req.ReviewId == 0 {
-		return &pb.UpdateReviewResponse{
-			Success: false,
-			Message: "Review ID is required",
-		}, status.Errorf(codes.InvalidArgument, "Review ID is required")
+func (s *ReviewService) UpdateReview(reviewID uint, rating int16, comment string) error {
+	if reviewID == 0 {
+		return fmt.Errorf("review ID is required")
 	}
 
-	review, err := s.ReviewRepository.GetReviewByID(uint(req.ReviewId))
+	review, err := s.ReviewRepository.GetReviewByID(reviewID)
 	if err != nil {
 		logger.Errorf("Error getting review: %v", err)
-		return &pb.UpdateReviewResponse{
-			Success: false,
-			Message: "Review not found",
-		}, status.Errorf(codes.NotFound, "Review not found")
+		return fmt.Errorf("review not found")
 	}
 
-	if req.Rating != 0 {
-		review.Rating = int16(req.Rating)
+	if rating != 0 {
+		review.Rating = rating
 	}
-	if req.Comment != "" {
-		review.Comment = req.Comment
+	if comment != "" {
+		review.Comment = comment
 	}
 
-	err = s.ReviewRepository.UpdateReview(review)
-	if err != nil {
+	if err := s.ReviewRepository.UpdateReview(review); err != nil {
 		logger.Errorf("Error updating review: %v", err)
-		return &pb.UpdateReviewResponse{
-			Success: false,
-			Message: err.Error(),
-		}, status.Errorf(codes.Internal, "Error updating review: %v", err)
+		return err
 	}
 
-	return &pb.UpdateReviewResponse{
-		Success: true,
-		Message: "Review updated successfully",
-	}, nil
+	return nil
 }
 
-func (s *ReviewService) DeleteReview(ctx context.Context, req *pb.DeleteReviewRequest) (*pb.DeleteReviewResponse, error) {
-	if req.ReviewId == 0 {
-		return &pb.DeleteReviewResponse{
-			Success: false,
-			Message: "Review ID is required",
-		}, status.Errorf(codes.InvalidArgument, "Review ID is required")
+func (s *ReviewService) DeleteReview(reviewID uint) error {
+	if reviewID == 0 {
+		return fmt.Errorf("review ID is required")
 	}
 
-	review, err := s.ReviewRepository.GetReviewByID(uint(req.ReviewId))
+	review, err := s.ReviewRepository.GetReviewByID(reviewID)
 	if err != nil {
 		logger.Errorf("Error getting review: %v", err)
-		return &pb.DeleteReviewResponse{
-			Success: false,
-			Message: "Review not found",
-		}, status.Errorf(codes.NotFound, "Review not found")
+		return fmt.Errorf("review not found")
 	}
 
-	err = s.ReviewRepository.DeleteReview(review)
-	if err != nil {
+	if err := s.ReviewRepository.DeleteReview(review); err != nil {
 		logger.Errorf("Error deleting review: %v", err)
-		return &pb.DeleteReviewResponse{
-			Success: false,
-			Message: err.Error(),
-		}, status.Errorf(codes.Internal, "Error deleting review: %v", err)
+		return err
 	}
 
-	return &pb.DeleteReviewResponse{
-		Success: true,
-		Message: "Review deleted successfully",
-	}, nil
+	return nil
 }
 
-func (s *ReviewService) GetAverageRating(ctx context.Context, req *pb.GetAverageRatingRequest) (*pb.GetAverageRatingResponse, error) {
-	reviews, err := s.ReviewRepository.GetReviewsByProductVariantID(uint(req.ProductVariantId))
+func (s *ReviewService) GetAverageRating(productVariantID uint) (float64, error) {
+	reviews, err := s.ReviewRepository.GetReviewsByProductVariantID(productVariantID)
 	if err != nil {
 		logger.Errorf("Error getting reviews: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error getting reviews: %v", err)
+		return 0, err
 	}
 
-	var totalRating int16
-	for _, review := range reviews {
-		totalRating += review.Rating
+	if len(reviews) == 0 {
+		return 0, nil
 	}
 
-	averageRating := float64(totalRating) / float64(len(reviews))
-	return &pb.GetAverageRatingResponse{
-		AverageRating: averageRating,
-	}, nil
+	var total int
+	for _, r := range reviews {
+		total += int(r.Rating)
+	}
+
+	average := float64(total) / float64(len(reviews))
+	return average, nil
 }

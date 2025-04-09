@@ -1,16 +1,12 @@
 package question
 
 import (
-	"context"
+	"fmt"
 
-	pb "github.com/ShopOnGO/review-proto/pkg/service"
 	"github.com/ShopOnGO/review-service/pkg/logger"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type QuestionService struct {
-	pb.UnimplementedQuestionServiceServer
 	QuestionRepository *QuestionRepository
 }
 
@@ -20,115 +16,52 @@ func NewQuestionService(questionRepo *QuestionRepository) *QuestionService {
 	}
 }
 
-func (s *QuestionService) AddQuestion(ctx context.Context, req *pb.AddQuestionRequest) (*pb.AddQuestionResponse, error) {
-	if req.ProductVariantId == 0 || req.UserId == 0 || req.QuestionText == "" {
-		return &pb.AddQuestionResponse{
-			Success: false,
-			Message: "Invalid input parameters",
-		}, status.Errorf(codes.InvalidArgument, "Invalid input parameters")
+func (s *QuestionService) AddQuestion(productVariantID, userID uint, questionText string) (*Question, error) {
+	if productVariantID == 0 || userID == 0 || questionText == "" {
+		return nil, fmt.Errorf("invalid input parameters")
 	}
 
 	question := &Question{
-		ProductVariantID: uint(req.ProductVariantId),
-		UserID:           uint(req.UserId),
-		QuestionText:     req.QuestionText,
+		ProductVariantID: productVariantID,
+		UserID:           userID,
+		QuestionText:     questionText,
 	}
 
-	err := s.QuestionRepository.CreateQuestion(question)
-	if err != nil {
+	if err := s.QuestionRepository.CreateQuestion(question); err != nil {
 		logger.Errorf("Error creating question: %v", err)
-		return &pb.AddQuestionResponse{
-			Success: false,
-			Message: err.Error(),
-		}, status.Errorf(codes.Internal, "Error creating question: %v", err)
+		return nil, err
 	}
 
-	return &pb.AddQuestionResponse{
-		Success: true,
-		Message: "Question added successfully",
-		Question: &pb.Question{
-			Model: &pb.Model{
-				Id: uint32(question.ID),
-			},
-			ProductVariantId: uint32(question.ProductVariantID),
-			UserId:           uint32(question.UserID),
-			QuestionText:     question.QuestionText,
-			AnswerText:       question.AnswerText,
-		},
-	}, nil
+	return question, nil
 }
 
-func (s *QuestionService) GetQuestions(ctx context.Context, req *pb.GetQuestionsRequest) (*pb.GetQuestionsResponse, error) {
-	questions, err := s.QuestionRepository.GetQuestionsByProductVariantID(uint(req.ProductVariantId))
+func (s *QuestionService) GetQuestions(productVariantID uint) ([]Question, error) {
+	questions, err := s.QuestionRepository.GetQuestionsByProductVariantID(productVariantID)
 	if err != nil {
 		logger.Errorf("Error getting questions: %v", err)
-		return &pb.GetQuestionsResponse{
-			Questions: nil,
-		}, status.Errorf(codes.Internal, "Error getting questions: %v", err)
+		return nil, err
 	}
-
-	questionList := make([]*pb.Question, len(questions))
-	for i, question := range questions {
-		questionList[i] = &pb.Question{
-			Model: &pb.Model{
-				Id: uint32(question.ID),
-			},
-			ProductVariantId: uint32(question.ProductVariantID),
-			UserId:           uint32(question.UserID),
-			QuestionText:     question.QuestionText,
-			AnswerText:       question.AnswerText,
-		}
-	}
-
-	return &pb.GetQuestionsResponse{
-		Questions: questionList,
-	}, nil
+	return questions, nil
 }
 
-
-func (s *QuestionService) AnswerQuestion(ctx context.Context, req *pb.AnswerQuestionRequest) (*pb.AnswerQuestionResponse, error) {
-	if req.QuestionId == 0 || req.AnswerText == "" {
-		return &pb.AnswerQuestionResponse{
-			Success: false,
-			Message: "Invalid input parameters",
-		}, status.Errorf(codes.InvalidArgument, "Invalid input parameters")
+func (s *QuestionService) AnswerQuestion(questionID uint, answerText string) error {
+	if questionID == 0 || answerText == "" {
+		return fmt.Errorf("invalid input parameters")
 	}
-
-	err := s.QuestionRepository.UpdateAnswer(uint(req.QuestionId), req.AnswerText)
-	if err != nil {
+	if err := s.QuestionRepository.UpdateAnswer(questionID, answerText); err != nil {
 		logger.Errorf("Error answering question: %v", err)
-		return &pb.AnswerQuestionResponse{
-			Success: false,
-			Message: err.Error(),
-		}, status.Errorf(codes.Internal, "Error answering question: %v", err)
+		return err
 	}
-
-	return &pb.AnswerQuestionResponse{
-		Success: true,
-		Message: "Answer added successfully",
-	}, nil
+	return nil
 }
 
-
-func (s *QuestionService) DeleteQuestion(ctx context.Context, req *pb.DeleteQuestionRequest) (*pb.DeleteQuestionResponse, error) {
-	if req.QuestionId == 0 {
-		return &pb.DeleteQuestionResponse{
-			Success: false,
-			Message: "Invalid question ID",
-		}, status.Errorf(codes.InvalidArgument, "Invalid question ID")
+func (s *QuestionService) DeleteQuestion(questionID uint) error {
+	if questionID == 0 {
+		return fmt.Errorf("invalid question ID")
 	}
-
-	err := s.QuestionRepository.DeleteQuestionByID(uint(req.QuestionId))
-	if err != nil {
+	if err := s.QuestionRepository.DeleteQuestionByID(questionID); err != nil {
 		logger.Errorf("Error deleting question: %v", err)
-		return &pb.DeleteQuestionResponse{
-			Success: false,
-			Message: err.Error(),
-		}, status.Errorf(codes.Internal, "Error deleting question: %v", err)
+		return err
 	}
-
-	return &pb.DeleteQuestionResponse{
-		Success: true,
-		Message: "Question deleted successfully",
-	}, nil
+	return nil
 }
