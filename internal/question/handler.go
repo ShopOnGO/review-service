@@ -15,11 +15,11 @@ type QuestionHandler struct {
 }
 
 func NewQuestionHandler(router *gin.Engine, questionSvc *QuestionService) *QuestionHandler {
-	h := &QuestionHandler{questionSvc: questionSvc}
+	handler := &QuestionHandler{questionSvc: questionSvc}
 
-	router.GET("/question/:id", h.getQuestionByID)
+	router.GET("/question/:id", handler.getQuestionByID)
 
-	return h
+	return handler
 }
 
 

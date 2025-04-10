@@ -20,11 +20,11 @@ func main() {
 	conf := configs.LoadConfig()
 	database := db.NewDB(conf)
 
-	// репозитории
+	// repository
 	reviewRepo := review.NewReviewRepository(database)
 	questionRepo := question.NewQuestionRepository(database)
 
-	// сервисы
+	// service
 	reviewSvc := review.NewReviewService(reviewRepo)
 	questionSvc := question.NewQuestionService(questionRepo)
 
@@ -44,6 +44,8 @@ func main() {
 	})
 
 	router := gin.Default()
+
+	// handler
 	review.NewReviewHandler(router, reviewSvc)
 	question.NewQuestionHandler(router, questionSvc)
 
