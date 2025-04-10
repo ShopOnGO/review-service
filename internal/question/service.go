@@ -35,14 +35,19 @@ func (s *QuestionService) AddQuestion(productVariantID, userID uint, questionTex
 	return question, nil
 }
 
-func (s *QuestionService) GetQuestions(productVariantID uint) ([]Question, error) {
-	questions, err := s.QuestionRepository.GetQuestionsByProductVariantID(productVariantID)
+func (s *QuestionService) GetQuestionByID(questionID uint) (*Question, error) {
+	if questionID == 0 {
+		return nil, fmt.Errorf("неверный ID вопроса")
+	}
+
+	question, err := s.QuestionRepository.GetQuestionByID(questionID)
 	if err != nil {
-		logger.Errorf("Error getting questions: %v", err)
+		logger.Errorf("Ошибка при получении вопроса: %v", err)
 		return nil, err
 	}
-	return questions, nil
+	return question, nil
 }
+
 
 func (s *QuestionService) AnswerQuestion(questionID uint, answerText string) error {
 	if questionID == 0 || answerText == "" {

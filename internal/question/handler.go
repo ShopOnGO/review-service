@@ -3,9 +3,43 @@ package question
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
 
 	"github.com/ShopOnGO/review-service/pkg/logger"
+	"github.com/gin-gonic/gin"
 )
+
+type QuestionHandler struct {
+	questionSvc *QuestionService
+}
+
+func NewQuestionHandler(router *gin.Engine, questionSvc *QuestionService) *QuestionHandler {
+	h := &QuestionHandler{questionSvc: questionSvc}
+
+	router.GET("/question/:id", h.getQuestionByID)
+
+	return h
+}
+
+
+func (h *QuestionHandler) getQuestionByID(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil || id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID"})
+		return
+	}
+
+	question, err := h.questionSvc.GetQuestionByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Вопрос не найден"})
+		return
+	}
+
+	c.JSON(http.StatusOK, question)
+}
+
 
 func HandleQuestionEvent(msg []byte, key string, questionSvc *QuestionService) error {
 	var base BaseQuestionEvent

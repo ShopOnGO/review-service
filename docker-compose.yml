@@ -14,7 +14,8 @@ services:
     networks:
       - shopongo_default
     ports:
-      - "50052:50051"
+      - "8080:8080"
+
 
 networks:
   shopongo_default:

@@ -11,6 +11,10 @@ type QuestionCreatedEvent struct {
 	QuestionText     string `json:"question_text"`
 }
 
+type QuestionGetEvent struct {
+	ProductVariantID uint `json:"product_variant_id"`
+}
+
 type QuestionAnsweredEvent struct {
 	Action     string `json:"action"`
 	QuestionID uint   `json:"question_id"`

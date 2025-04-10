@@ -35,14 +35,18 @@ func (s *ReviewService) AddReview(productVariantID, userID uint, rating int16, c
 	return review, nil
 }
 
-func (s *ReviewService) GetReviews(productVariantID uint) ([]Review, error) {
-	reviews, err := s.ReviewRepository.GetReviewsByProductVariantID(productVariantID)
-	if err != nil {
-		logger.Errorf("Error getting reviews: %v", err)
-		return nil, err
+func (s *ReviewService) GetReviewByID(reviewID uint) (*Review, error) {
+	if reviewID == 0 {
+		return nil, fmt.Errorf("review ID is required")
 	}
-	return reviews, nil
+	review, err := s.ReviewRepository.GetReviewByID(reviewID)
+	if err != nil {
+		logger.Errorf("Error getting review by ID: %v", err)
+		return nil, fmt.Errorf("review not found")
+	}
+	return review, nil
 }
+
 
 func (s *ReviewService) UpdateReview(reviewID uint, rating int16, comment string) error {
 	if reviewID == 0 {

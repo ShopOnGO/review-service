@@ -11,6 +11,7 @@ import (
 	"github.com/ShopOnGO/review-service/migrations"
 	"github.com/ShopOnGO/review-service/pkg/db"
 	"github.com/ShopOnGO/review-service/pkg/kafkaService"
+	"github.com/gin-gonic/gin"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -41,6 +42,16 @@ func main() {
 	go kafkaConsumer.Consume(ctx, func(msg kafka.Message) error {
 		return handleKafkaMessage(msg, reviewSvc, questionSvc)
 	})
+
+	router := gin.Default()
+	review.NewReviewHandler(router, reviewSvc)
+	question.NewQuestionHandler(router, questionSvc)
+
+	go func() {
+		if err := router.Run(":8080"); err != nil {
+			fmt.Println("Ошибка при запуске HTTP-сервера:", err)
+		}
+	}()
 
 	select {}
 }
