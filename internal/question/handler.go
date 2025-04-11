@@ -17,13 +17,16 @@ type QuestionHandler struct {
 func NewQuestionHandler(router *gin.Engine, questionSvc *QuestionService) *QuestionHandler {
 	handler := &QuestionHandler{questionSvc: questionSvc}
 
-	router.GET("/question/:id", handler.getQuestionByID)
+	questionGroup := router.Group("/review-service/question")
+	{
+		questionGroup.GET("/:id", handler.GetQuestionByID)
+	}
 
 	return handler
 }
 
 
-func (h *QuestionHandler) getQuestionByID(c *gin.Context) {
+func (h *QuestionHandler) GetQuestionByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil || id == 0 {
