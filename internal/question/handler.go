@@ -17,7 +17,7 @@ type QuestionHandler struct {
 func NewQuestionHandler(router *gin.Engine, questionSvc *QuestionService) *QuestionHandler {
 	handler := &QuestionHandler{questionSvc: questionSvc}
 
-	questionGroup := router.Group("/review-service/question")
+	questionGroup := router.Group("/reviews-service/questions")
 	{
 		questionGroup.GET("/:id", handler.GetQuestionByID)
 	}

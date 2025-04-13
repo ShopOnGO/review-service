@@ -17,7 +17,7 @@ type ReviewHandler struct {
 func NewReviewHandler(router *gin.Engine,reviewSvc *ReviewService) *ReviewHandler {
 	handler := &ReviewHandler{reviewSvc: reviewSvc}
 
-	reviewGroup := router.Group("/review-service")
+	reviewGroup := router.Group("/reviews-service")
 	{
 		reviewGroup.GET("/:id", handler.getReviewByID)
 	}
