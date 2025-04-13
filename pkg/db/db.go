@@ -2,7 +2,6 @@ package db
 
 import (
 	"github.com/ShopOnGO/review-service/configs"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

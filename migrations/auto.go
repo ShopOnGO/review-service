@@ -5,7 +5,7 @@ import (
 
 	"github.com/ShopOnGO/review-service/internal/question"
 	"github.com/ShopOnGO/review-service/internal/review"
-	"github.com/ShopOnGO/review-service/pkg/logger"
+	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

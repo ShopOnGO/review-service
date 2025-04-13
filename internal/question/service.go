@@ -3,7 +3,7 @@ package question
 import (
 	"fmt"
 
-	"github.com/ShopOnGO/review-service/pkg/logger"
+	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 )
 
 type QuestionService struct {

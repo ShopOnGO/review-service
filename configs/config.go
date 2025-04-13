@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ShopOnGO/review-service/pkg/logger"
+	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 	"github.com/joho/godotenv"
 )
 
@@ -21,6 +21,7 @@ type KafkaConfig struct {
 	Brokers []string
 	Topic   string
 	GroupID string
+	ClientID string
 }
 
 func LoadConfig() *Config {
@@ -40,6 +41,7 @@ func LoadConfig() *Config {
 			Brokers: brokers,
 			Topic:   os.Getenv("KAFKA_TOPIC"),
 			GroupID: os.Getenv("KAFKA_GROUP_ID"),
+			ClientID: os.Getenv("KAFKA_CLIENT_ID"),
 		},
 	}
 }

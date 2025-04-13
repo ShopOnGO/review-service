@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ShopOnGO/review-service/pkg/logger"
+	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 

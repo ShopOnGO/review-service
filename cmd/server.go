@@ -8,9 +8,11 @@ import (
 	"github.com/ShopOnGO/review-service/configs"
 	"github.com/ShopOnGO/review-service/internal/question"
 	"github.com/ShopOnGO/review-service/internal/review"
+
 	"github.com/ShopOnGO/review-service/migrations"
+
 	"github.com/ShopOnGO/review-service/pkg/db"
-	"github.com/ShopOnGO/review-service/pkg/kafkaService"
+	"github.com/ShopOnGO/ShopOnGO/pkg/kafkaService"
 	"github.com/gin-gonic/gin"
 	"github.com/segmentio/kafka-go"
 )
@@ -33,6 +35,7 @@ func main() {
 		conf.Kafka.Brokers,
 		conf.Kafka.Topic,
 		conf.Kafka.GroupID,
+		conf.Kafka.ClientID,
 	)
 	defer kafkaConsumer.Close()
 
