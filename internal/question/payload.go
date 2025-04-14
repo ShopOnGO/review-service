@@ -7,7 +7,6 @@ type BaseQuestionEvent struct {
 type QuestionCreatedEvent struct {
 	Action           string `json:"action"`
 	ProductVariantID uint   `json:"product_variant_id"`
-	UserID           uint   `json:"user_id"`
 	QuestionText     string `json:"question_text"`
 }
 

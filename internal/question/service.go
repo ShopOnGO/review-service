@@ -16,14 +16,13 @@ func NewQuestionService(questionRepo *QuestionRepository) *QuestionService {
 	}
 }
 
-func (s *QuestionService) AddQuestion(productVariantID, userID uint, questionText string) (*Question, error) {
-	if productVariantID == 0 || userID == 0 || questionText == "" {
+func (s *QuestionService) AddQuestion(productVariantID uint, questionText string) (*Question, error) {
+	if productVariantID == 0 || questionText == "" {
 		return nil, fmt.Errorf("invalid input parameters")
 	}
 
 	question := &Question{
 		ProductVariantID: productVariantID,
-		UserID:           userID,
 		QuestionText:     questionText,
 	}
 

@@ -1,13 +1,13 @@
 package review
 
 type BaseReviewEvent struct {
-	Action string `json:"action"`
+	Action string 				`json:"action"`
+	Review ReviewCreatedEvent   `json:"product"`
+	UserID uint   				`json:"user_id"`
 }
 
 type ReviewCreatedEvent struct {
-	Action           string `json:"action"`
 	ProductVariantID uint   `json:"product_variant_id"`
-	UserID           uint   `json:"user_id"`
 	Rating           int16  `json:"rating"`
 	Comment          string `json:"comment"`
 }

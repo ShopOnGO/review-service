@@ -45,27 +45,25 @@ func (h *ReviewHandler) getReviewByID(c *gin.Context) {
 
 func HandleReviewEvent(msg []byte, key string, reviewSvc *ReviewService) error {
 	
+	logger.Infof("Получено сообщение: %s", string(msg))
+
 	var base BaseReviewEvent
 	if err := json.Unmarshal(msg, &base); err != nil {
 		return fmt.Errorf("ошибка десериализации базового сообщения: %w", err)
 	}
 
 	switch base.Action {
-	case "created":
-		var event ReviewCreatedEvent
-		if err := json.Unmarshal(msg, &event); err != nil {
-			logger.Errorf("Ошибка десериализации события создания отзыва: %v", err)
-			return err
-		}
+	case "create":
+		event := base.Review
 		logger.Infof("Получены данные для создания отзыва: product_variant_id=%d, user_id=%d, rating=%d, comment=%q",
-			event.ProductVariantID, event.UserID, event.Rating, event.Comment)
-		reviewCreated, err := reviewSvc.AddReview(event.ProductVariantID, event.UserID, event.Rating, event.Comment)
+			event.ProductVariantID, base.UserID, event.Rating, event.Comment)
+		reviewCreated, err := reviewSvc.AddReview(event.ProductVariantID, base.UserID, event.Rating, event.Comment)
 		if err != nil {
 			logger.Errorf("Ошибка при создании отзыва: %v", err)
 			return err
 		}
 		logger.Infof("Отзыв успешно создан: %+v", reviewCreated)
-	case "updated":
+	case "update":
 		var event ReviewUpdatedEvent
 		if err := json.Unmarshal(msg, &event); err != nil {
 			logger.Errorf("Ошибка десериализации события обновления отзыва: %v", err)
@@ -84,7 +82,7 @@ func HandleReviewEvent(msg []byte, key string, reviewSvc *ReviewService) error {
 			return err
 		}
 		logger.Infof("Отзыв успешно обновлён. review_id: %d", event.ReviewID)
-	case "deleted":
+	case "delete":
 		var event ReviewDeletedEvent
 		if err := json.Unmarshal(msg, &event); err != nil {
 			logger.Errorf("Ошибка десериализации события удаления отзыва: %v", err)
