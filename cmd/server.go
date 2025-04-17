@@ -71,10 +71,12 @@ func main() {
 
 		grpcServer := grpc.NewServer()
 		grpcReviewService := review.NewGrpcReviewService(reviewSvc)
+		grpcQuestionService := question.NewGrpcQuestionService(questionSvc)
 
 		pb.RegisterReviewServiceServer(grpcServer, grpcReviewService)
+		pb.RegisterQuestionServiceServer(grpcServer, grpcQuestionService)
 
-		fmt.Println("gRPC сервер слушает на :50051")
+		fmt.Println("gRPC сервер слушает на :50052")
 		if err := grpcServer.Serve(listener); err != nil {
 			fmt.Println("Ошибка при запуске gRPC сервера:", err)
 		}
