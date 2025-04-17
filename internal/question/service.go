@@ -69,3 +69,18 @@ func (s *QuestionService) DeleteQuestion(questionID uint) error {
 	}
 	return nil
 }
+
+
+func (s *QuestionService) GetQuestionsForProduct(productVariantID uint, limit, offset int) ([]*Question, error) {
+    if productVariantID == 0 {
+        return nil, fmt.Errorf("productVariantID is required")
+    }
+
+    questions, err := s.QuestionRepository.GetQuestionsByProductVariantIDPaginated(productVariantID, limit, offset)
+    if err != nil {
+        logger.Errorf("Error getting paginated questions for product %d: %v", productVariantID, err)
+        return nil, err
+    }
+
+    return questions, nil
+}

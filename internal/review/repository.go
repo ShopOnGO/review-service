@@ -36,6 +36,24 @@ func (r *ReviewRepository) GetReviewsByProductVariantID(productVariantID uint) (
 	return reviews, nil
 }
 
+func (r *ReviewRepository) GetReviewsByProductVariantIDPaginated(productVariantID uint, limit, offset int) ([]*Review, error) {
+	var reviews []*Review
+	result := r.Db.
+		Where("product_variant_id = ?", productVariantID).
+		Limit(limit).
+		Offset(offset).
+		Order("created_at DESC"). //сначала новые отзывы, можно изменить
+		Find(&reviews)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return reviews, nil
+}
+
+
+
 func (r *ReviewRepository) UpdateReview(review *Review) error {
 	return r.Db.Save(review).Error
 }

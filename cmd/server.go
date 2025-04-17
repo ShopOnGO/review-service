@@ -3,16 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/ShopOnGO/review-service/configs"
 	"github.com/ShopOnGO/review-service/internal/question"
 	"github.com/ShopOnGO/review-service/internal/review"
+	"google.golang.org/grpc"
 
 	"github.com/ShopOnGO/review-service/migrations"
 
-	"github.com/ShopOnGO/review-service/pkg/db"
 	"github.com/ShopOnGO/ShopOnGO/pkg/kafkaService"
+	"github.com/ShopOnGO/review-service/pkg/db"
+
+	pb "github.com/ShopOnGO/review-proto/pkg/service"
 	"github.com/gin-gonic/gin"
 	"github.com/segmentio/kafka-go"
 )
@@ -57,6 +61,25 @@ func main() {
 			fmt.Println("Ошибка при запуске HTTP-сервера:", err)
 		}
 	}()
+
+	go func() {
+		listener, err := net.Listen("tcp", ":50052")
+		if err != nil {
+			fmt.Println("Ошибка при создании TCP listener:", err)
+			return
+		}
+
+		grpcServer := grpc.NewServer()
+		grpcReviewService := review.NewGrpcReviewService(reviewSvc)
+
+		pb.RegisterReviewServiceServer(grpcServer, grpcReviewService)
+
+		fmt.Println("gRPC сервер слушает на :50051")
+		if err := grpcServer.Serve(listener); err != nil {
+			fmt.Println("Ошибка при запуске gRPC сервера:", err)
+		}
+	}()
+
 
 	select {}
 }

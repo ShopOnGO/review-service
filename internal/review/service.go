@@ -2,6 +2,7 @@ package review
 
 import (
 	"fmt"
+
 	"github.com/ShopOnGO/ShopOnGO/pkg/logger"
 )
 
@@ -111,4 +112,18 @@ func (s *ReviewService) GetAverageRating(productVariantID uint) (float64, error)
 
 	average := float64(total) / float64(len(reviews))
 	return average, nil
+}
+
+func (s *ReviewService) GetReviewsForProduct(productVariantID uint, limit, offset int) ([]*Review, error) {
+	if productVariantID == 0 {
+		return nil, fmt.Errorf("productVariantID is required")
+	}
+
+	reviews, err := s.ReviewRepository.GetReviewsByProductVariantIDPaginated(productVariantID, limit, offset)
+	if err != nil {
+		logger.Errorf("Error getting paginated reviews: %v", err)
+		return nil, err
+	}
+
+	return reviews, nil
 }

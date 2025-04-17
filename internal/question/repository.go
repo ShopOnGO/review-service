@@ -51,3 +51,15 @@ func (r *QuestionRepository) DeleteQuestion(question *Question) error {
 func (r *QuestionRepository) DeleteQuestionByID(id uint) error {
 	return r.Db.Delete(&Question{}, id).Error
 }
+
+func (r *QuestionRepository) GetQuestionsByProductVariantIDPaginated(productVariantID uint, limit, offset int) ([]*Question, error) {
+    var questions []*Question
+    result := r.Db.
+        Where("product_variant_id = ?", productVariantID).
+        Limit(limit).
+        Offset(offset).
+        Order("created_at DESC").
+        Find(&questions)
+
+    return questions, result.Error
+}
