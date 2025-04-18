@@ -94,26 +94,6 @@ func (s *ReviewService) DeleteReview(reviewID uint) error {
 	return nil
 }
 
-func (s *ReviewService) GetAverageRating(productVariantID uint) (float64, error) {
-	reviews, err := s.ReviewRepository.GetReviewsByProductVariantID(productVariantID)
-	if err != nil {
-		logger.Errorf("Error getting reviews: %v", err)
-		return 0, err
-	}
-
-	if len(reviews) == 0 {
-		return 0, nil
-	}
-
-	var total int
-	for _, r := range reviews {
-		total += int(r.Rating)
-	}
-
-	average := float64(total) / float64(len(reviews))
-	return average, nil
-}
-
 func (s *ReviewService) GetReviewsForProduct(productVariantID uint, limit, offset int) ([]*Review, error) {
 	if productVariantID == 0 {
 		return nil, fmt.Errorf("productVariantID is required")
@@ -126,4 +106,16 @@ func (s *ReviewService) GetReviewsForProduct(productVariantID uint, limit, offse
 	}
 
 	return reviews, nil
+}
+
+func (s *ReviewService) UpdateRatingAfterCreate(productVariantID uint, rating int16) error {
+    return s.ReviewRepository.UpdateRating(productVariantID, int(rating))
+}
+
+func (s *ReviewService) UpdateRatingAfterUpdate(productVariantID uint, oldRating, newRating int) error {
+    return s.ReviewRepository.UpdateRatingDelta(productVariantID, oldRating, newRating)
+}
+
+func (s *ReviewService) UpdateRatingAfterDelete(productVariantID uint, oldRating int) error {
+    return s.ReviewRepository.UpdateRatingDelete(productVariantID, oldRating)
 }

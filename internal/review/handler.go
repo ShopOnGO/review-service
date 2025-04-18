@@ -62,37 +62,64 @@ func HandleReviewEvent(msg []byte, key string, reviewSvc *ReviewService) error {
 			logger.Errorf("Ошибка при создании отзыва: %v", err)
 			return err
 		}
+		if err := reviewSvc.UpdateRatingAfterCreate(reviewCreated.ProductVariantID, reviewCreated.Rating); err != nil {
+			logger.Errorf("Ошибка при обновлении агрегатов рейтинга после создания: %v", err)
+		}
+
 		logger.Infof("Отзыв успешно создан: %+v", reviewCreated)
+
 	case "update":
 		var event ReviewUpdatedEvent
 		if err := json.Unmarshal(msg, &event); err != nil {
 			logger.Errorf("Ошибка десериализации события обновления отзыва: %v", err)
 			return err
 		}
-		var rating int16
+		oldReview, err := reviewSvc.GetReviewByID(event.ReviewID)
+		if err != nil {
+			return err
+		}
+		var newRating int16 = oldReview.Rating
 		if event.Rating != nil {
-			rating = *event.Rating
+			newRating = *event.Rating
 		}
-		var comment string
+		var newComment string = oldReview.Comment
 		if event.Comment != nil {
-			comment = *event.Comment
+			newComment = *event.Comment
 		}
-		if err := reviewSvc.UpdateReview(event.ReviewID, rating, comment); err != nil {
+		if err := reviewSvc.UpdateReview(event.ReviewID, newRating, newComment); err != nil {
 			logger.Errorf("Ошибка при обновлении отзыва: %v", err)
 			return err
 		}
+
+		if event.Rating != nil {
+			if err := reviewSvc.UpdateRatingAfterUpdate(oldReview.ProductVariantID, int(oldReview.Rating), int(newRating)); err != nil {
+				logger.Errorf("Ошибка при обновлении агрегатов рейтинга после редактирования: %v", err)
+			}
+		}
 		logger.Infof("Отзыв успешно обновлён. review_id: %d", event.ReviewID)
+
 	case "delete":
 		var event ReviewDeletedEvent
 		if err := json.Unmarshal(msg, &event); err != nil {
 			logger.Errorf("Ошибка десериализации события удаления отзыва: %v", err)
 			return err
 		}
+
+		oldReview, err := reviewSvc.GetReviewByID(event.ReviewID)
+		if err != nil {
+			return err
+		}
+
 		if err := reviewSvc.DeleteReview(event.ReviewID); err != nil {
 			logger.Errorf("Ошибка при удалении отзыва: %v", err)
 			return err
 		}
+
+		if err := reviewSvc.UpdateRatingAfterDelete(oldReview.ProductVariantID, int(oldReview.Rating)); err != nil {
+			logger.Errorf("Ошибка при обновлении агрегатов рейтинга после удаления: %v", err)
+		}
 		logger.Infof("Отзыв успешно удалён. review_id: %d", event.ReviewID)
+		
 	default:
 		return fmt.Errorf("неизвестное действие для отзыва: %s", base.Action)
 	}

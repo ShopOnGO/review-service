@@ -2,6 +2,7 @@ package review
 
 import (
 	"github.com/ShopOnGO/review-service/pkg/db"
+	"gorm.io/gorm"
 )
 
 type ReviewRepository struct {
@@ -52,7 +53,58 @@ func (r *ReviewRepository) GetReviewsByProductVariantIDPaginated(productVariantI
 	return reviews, nil
 }
 
+func (r *ReviewRepository) UpdateRating(productVariantID uint, newRating int) error {
+    return r.Db.Transaction(func(tx *gorm.DB) error {
+        res := tx.Exec(`
+            UPDATE product_variants
+            SET 
+                review_count   = review_count + ?,
+                rating_sum     = rating_sum   + ?,
+                rating = (rating_sum + ?)::numeric / (review_count + 1)
+            WHERE id = ?
+        `, 1, newRating, newRating, productVariantID)
 
+        if res.Error != nil {
+            return res.Error
+        }
+        return nil
+    })
+}
+
+// UpdateRatingDelta — корректируем сумму при update (count не меняется)
+func (r *ReviewRepository) UpdateRatingDelta(productVariantID uint, oldRating, newRating int) error {
+    delta := newRating - oldRating
+    return r.Db.Transaction(func(tx *gorm.DB) error {
+        res := tx.Exec(`
+            UPDATE product_variants
+            SET 
+              rating_sum     = rating_sum + ?,
+              rating = (rating_sum + ?)::numeric / review_count
+            WHERE id = ?`,
+            delta, delta, productVariantID,
+        )
+        return res.Error
+    })
+}
+
+func (r *ReviewRepository) UpdateRatingDelete(productVariantID uint, oldRating int) error {
+    return r.Db.Transaction(func(tx *gorm.DB) error {
+        res := tx.Exec(`
+            UPDATE product_variants
+            SET 
+              review_count   = review_count - 1,
+              rating_sum     = rating_sum   - ?,
+              rating = CASE 
+                WHEN review_count > 1 
+                  THEN (rating_sum - ?)::numeric / (review_count - 1)
+                ELSE 0
+              END
+            WHERE id = ?`,
+            oldRating, oldRating, productVariantID,
+        )
+        return res.Error
+    })
+}
 
 func (r *ReviewRepository) UpdateReview(review *Review) error {
 	return r.Db.Save(review).Error
