@@ -3,7 +3,7 @@ module github.com/ShopOnGO/review-service
 go 1.23.3
 
 require (
-	github.com/ShopOnGO/ShopOnGO v0.0.0-20250413104543-897b668eb6c7
+	github.com/ShopOnGO/ShopOnGO v0.0.0-20250419132451-d711ea502a40
 	github.com/ShopOnGO/review-proto v0.0.0-20250417124205-a8c949309849
 	github.com/gin-gonic/gin v1.10.0
 	github.com/joho/godotenv v1.5.1
@@ -31,7 +31,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.15.9 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
