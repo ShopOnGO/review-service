@@ -24,25 +24,33 @@ func (g *GrpcQuestionService) GetQuestionsForProduct(ctx context.Context, req *p
 
 	resp := &pb.QuestionListResponse{}
 	for _, q := range questions {
-		resp.Questions = append(resp.Questions, &pb.Question{
-			Model: &pb.Model{
-			  Id:        uint32(q.ID),
-			  CreatedAt: timestamppb.New(q.CreatedAt),
-			  UpdatedAt: timestamppb.New(q.UpdatedAt),
-			  DeletedAt: func() *timestamppb.Timestamp {
+		protoModel := &pb.Model{
+			Id:        uint32(q.ID),
+			CreatedAt: timestamppb.New(q.CreatedAt),
+			UpdatedAt: timestamppb.New(q.UpdatedAt),
+			DeletedAt: func() *timestamppb.Timestamp {
 				if q.DeletedAt.Valid {
 					return timestamppb.New(q.DeletedAt.Time)
 				}
 				return nil
 			}(),
-			},
-			
+		}
+
+		protoQuestion := &pb.Question{
+			Model:            protoModel,
 			ProductVariantId: uint32(q.ProductVariantID),
-			UserId:           uint32(q.UserID),
 			QuestionText:     q.QuestionText,
 			AnswerText:       q.AnswerText,
-		  })
-		  
+		}
+
+		if q.UserID != nil {
+			protoQuestion.Author = &pb.Question_UserId{UserId: uint32(*q.UserID)}
+		} else if len(q.GuestID) > 0 {
+			protoQuestion.Author = &pb.Question_GuestId{GuestId: q.GuestID}
+		}
+
+		resp.Questions = append(resp.Questions, protoQuestion)
 	}
+
 	return resp, nil
 }
