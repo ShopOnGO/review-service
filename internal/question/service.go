@@ -52,6 +52,11 @@ func (s *QuestionService) AnswerQuestion(questionID uint, answerText string) err
 	if questionID == 0 || answerText == "" {
 		return fmt.Errorf("invalid input parameters")
 	}
+	_, err := s.QuestionRepository.GetQuestionByID(questionID)
+	if err != nil {
+		return fmt.Errorf("question with id %d not found", questionID)
+	}
+
 	if err := s.QuestionRepository.UpdateAnswer(questionID, answerText); err != nil {
 		logger.Errorf("Error answering question: %v", err)
 		return err
