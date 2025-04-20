@@ -16,7 +16,7 @@ func NewReviewService(reviewRepo *ReviewRepository) *ReviewService {
 	}
 }
 
-func (s *ReviewService) AddReview(productVariantID, userID uint, rating int16, comment string) (*Review, error) {
+func (s *ReviewService) AddReview(productVariantID, userID uint, rating int16,likesCount int, comment string) (*Review, error) {
 	if productVariantID == 0 || userID == 0 {
 		return nil, fmt.Errorf("invalid product_variant_id or user_id")
 	}
@@ -25,6 +25,7 @@ func (s *ReviewService) AddReview(productVariantID, userID uint, rating int16, c
 		ProductVariantID: productVariantID,
 		UserID:           userID,
 		Rating:           rating,
+		LikesCount: 	  likesCount,
 		Comment:          comment,
 	}
 

@@ -72,10 +72,10 @@ func HandleCreateReviewEvent(msg []byte, reviewSvc *ReviewService) error {
     }
 
     event := base.Review
-    logger.Infof("Получены данные для создания отзыва: product_variant_id=%d, user_id=%d, rating=%d, comment=%q",
-        event.ProductVariantID, base.UserID, event.Rating, event.Comment)
+    logger.Infof("Получены данные для создания отзыва: product_variant_id=%d, user_id=%d, rating=%d, likes_count=%d, comment=%q",
+        event.ProductVariantID, base.UserID, event.Rating, event.LikesCount, event.Comment)
 
-    reviewCreated, err := reviewSvc.AddReview(event.ProductVariantID, base.UserID, event.Rating, event.Comment)
+    reviewCreated, err := reviewSvc.AddReview(event.ProductVariantID, base.UserID, event.Rating, event.LikesCount, event.Comment)
     if err != nil {
         logger.Errorf("Ошибка при создании отзыва: %v", err)
         return err

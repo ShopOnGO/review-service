@@ -9,6 +9,7 @@ type BaseReviewEvent struct {
 type ReviewCreatedEvent struct {
 	ProductVariantID uint   `json:"product_variant_id"`
 	Rating           int16  `json:"rating"`
+	LikesCount		 int    `gorm:"default:0" json:"likes_count"`
 	Comment          string `json:"comment"`
 }
 
