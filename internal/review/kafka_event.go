@@ -65,6 +65,11 @@ func HandleUpdateReviewEvent(msg []byte, reviewSvc *ReviewService) error {
 		return err
 	}
 
+	if oldReview.UserID != event.UserID {
+		logger.Warnf("Попытка обновить отзыв не его создателем user_id: %d, expected user_id: %d", event.UserID, oldReview.UserID)
+		return fmt.Errorf("user %d is not the author of review %d", event.UserID, event.ReviewID)
+	}
+
 	var newRating int16 = oldReview.Rating
 	if event.Rating != nil {
 		newRating = *event.Rating
