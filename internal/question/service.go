@@ -95,3 +95,18 @@ func (s *QuestionService) GetQuestionsForProduct(productVariantID uint, limit, o
 
     return questions, nil
 }
+
+func (s *QuestionService) AddLikeToQuestion(questionID uint) (uint, error) {
+    if questionID == 0 {
+        return 0, fmt.Errorf("invalid question id")
+    }
+
+    // Можно здесь добавить дополнительную логику:
+    // – проверка, что пользователь ещё не лайкал (если нужна такая фича)
+
+    newCount, err := s.QuestionRepository.IncrementLikes(questionID)
+    if err != nil {
+        return 0, err
+    }
+    return newCount, nil
+}

@@ -1,7 +1,11 @@
 package question
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/ShopOnGO/review-service/pkg/db"
+	"gorm.io/gorm"
 )
 
 type QuestionRepository struct {
@@ -62,4 +66,24 @@ func (r *QuestionRepository) GetQuestionsByProductVariantIDPaginated(productVari
         Find(&questions)
 
     return questions, result.Error
+}
+
+func (r *QuestionRepository) IncrementLikes(questionID uint) (uint, error) {
+    var newLikes uint
+
+    err := r.Db.Raw(`
+        UPDATE questions
+        SET likes_count = likes_count + 1
+        WHERE id = ?
+        RETURNING likes_count
+    `, questionID).Scan(&newLikes).Error
+
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) || newLikes == 0 {
+            return 0, fmt.Errorf("question not found")
+        }
+        return 0, err
+    }
+
+    return newLikes, nil
 }

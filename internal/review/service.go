@@ -120,3 +120,18 @@ func (s *ReviewService) UpdateRatingAfterUpdate(productVariantID uint, oldRating
 func (s *ReviewService) UpdateRatingAfterDelete(productVariantID uint, oldRating int) error {
     return s.ReviewRepository.UpdateRatingDelete(productVariantID, oldRating)
 }
+
+func (s *ReviewService) AddLikeToReview(reviewID uint) (uint, error) {
+    if reviewID == 0 {
+        return 0, fmt.Errorf("invalid review id")
+    }
+
+    // Можно здесь добавить дополнительную логику:
+    // – проверка, что пользователь ещё не лайкал (если нужна такая фича)
+
+    newCount, err := s.ReviewRepository.IncrementLikes(reviewID)
+    if err != nil {
+        return 0, err
+    }
+    return newCount, nil
+}

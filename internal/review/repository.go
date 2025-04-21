@@ -1,6 +1,9 @@
 package review
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/ShopOnGO/review-service/pkg/db"
 	"gorm.io/gorm"
 )
@@ -105,6 +108,27 @@ func (r *ReviewRepository) UpdateRatingDelete(productVariantID uint, oldRating i
         return res.Error
     })
 }
+
+func (r *ReviewRepository) IncrementLikes(reviewID uint) (uint, error) {
+    var newLikes uint
+
+    err := r.Db.Raw(`
+        UPDATE reviews
+        SET likes_count = likes_count + 1
+        WHERE id = ?
+        RETURNING likes_count
+    `, reviewID).Scan(&newLikes).Error
+
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) || newLikes == 0 {
+            return 0, fmt.Errorf("review not found")
+        }
+        return 0, err
+    }
+
+    return newLikes, nil
+}
+
 
 func (r *ReviewRepository) UpdateReview(review *Review) error {
 	return r.Db.Save(review).Error
