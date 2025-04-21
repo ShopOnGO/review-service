@@ -41,6 +41,7 @@ func (g *GrpcQuestionService) GetQuestionsForProduct(ctx context.Context, req *p
 			ProductVariantId: uint32(q.ProductVariantID),
 			QuestionText:     q.QuestionText,
 			AnswerText:       q.AnswerText,
+			LikesCount: 	  int32(q.LikesCount),
 		}
 
 		if q.UserID != nil {

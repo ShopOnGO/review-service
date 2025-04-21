@@ -1,7 +1,7 @@
 github.com/ShopOnGO/ShopOnGO v0.0.0-20250419132451-d711ea502a40 h1:gamr9t1+U+yfaWSd7XmrkM6+OiVe8hU/u/OrurTTYjA=
 github.com/ShopOnGO/ShopOnGO v0.0.0-20250419132451-d711ea502a40/go.mod h1:+d853doOjCeuH4NqIpbVM97svLU7xyFYcb58+8tJZy4=
-github.com/ShopOnGO/review-proto v0.0.0-20250419191729-bf82db122b74 h1:Rj5v1RlILeR+jczOoUAx+M0OpkZ1n4LZGjkAgMryJOs=
-github.com/ShopOnGO/review-proto v0.0.0-20250419191729-bf82db122b74/go.mod h1:YCXt/K0PONYOP2uoWW8ImJgT7taE7/a1W2mxg9Y36xM=
+github.com/ShopOnGO/review-proto v0.0.0-20250421111954-6f258e82d71b h1:uAVjn4TXUokFwnxj8RgZe+FB6HcDd7RkWFOGq2JvITc=
+github.com/ShopOnGO/review-proto v0.0.0-20250421111954-6f258e82d71b/go.mod h1:YCXt/K0PONYOP2uoWW8ImJgT7taE7/a1W2mxg9Y36xM=
 github.com/bytedance/sonic v1.13.2 h1:8/H1FempDZqC4VqjptGo14QQlJx8VdZJegxs6wwfqpQ=
 github.com/bytedance/sonic v1.13.2/go.mod h1:o68xyaF9u2gvVBuGHPlUVCy+ZfmNNO5ETf1+KgkJhz4=
 github.com/bytedance/sonic/loader v0.1.1/go.mod h1:ncP89zfokxS5LZrJxl5z0UJcsk4M4yY2JpfqGeCtNLU=

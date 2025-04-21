@@ -40,6 +40,7 @@ func (g *GrpcReviewService) GetReviewsForProduct(ctx context.Context, req *pb.Ge
 			ProductVariantId: uint32(r.ProductVariantID),
 			UserId:           uint32(r.UserID),
 			Rating:           int32(r.Rating),
+			LikesCount: 	  int32(r.LikesCount),
 			Comment:          r.Comment,
 		  })
 		  
