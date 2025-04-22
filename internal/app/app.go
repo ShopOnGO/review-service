@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -36,47 +36,8 @@ type App struct {
 	kafkaConsumer *kafkaService.KafkaService
 }
 
-func main() {
-	app := initServices()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	var wg sync.WaitGroup
-
-	// 1) HTTP
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runHTTPServer(app)
-	}()
-
-	// 2) gRPC
-	var grpcServer *grpc.Server
-	wg.Add(1)
-	go func() {
-		grpcServer = runGRPCServer(app, &wg)
-	}()
-
-	// 3) Kafka
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runKafkaConsumer(ctx, app)
-	}()
-
-	waitForShutdown(cancel)
-
-	if grpcServer != nil {
-        logger.Info("Stopping gRPC server…")
-        grpcServer.GracefulStop()
-    }
-
-	wg.Wait()
-	logger.Info("All is stopping")
-}
-
-func initServices() *App {
+func InitServices() *App {
 	migrations.CheckForMigrations()
 	conf := configs.LoadConfig()
 	database := db.NewDB(conf)
@@ -102,7 +63,7 @@ func initServices() *App {
 	}
 }
 
-func runHTTPServer(app *App) {
+func RunHTTPServer(app *App) {
 	router := gin.Default()
 	review.NewReviewHandler(router, app.reviewSvc)
 	question.NewQuestionHandler(router, app.questionSvc)
@@ -118,7 +79,7 @@ func runHTTPServer(app *App) {
 }
 
 
-func runGRPCServer(app *App, wg *sync.WaitGroup) *grpc.Server {
+func RunGRPCServer(app *App, wg *sync.WaitGroup) *grpc.Server {
 	defer wg.Done()
 	listener, err := net.Listen("tcp", ":50052")
 	if err != nil {
@@ -138,7 +99,7 @@ func runGRPCServer(app *App, wg *sync.WaitGroup) *grpc.Server {
 }
 
 
-func runKafkaConsumer(ctx context.Context, app *App) {
+func RunKafkaConsumer(ctx context.Context, app *App) {
 	defer app.kafkaConsumer.Close()
 
 	dispatcher := kafkaService.NewDispatcher()
@@ -154,7 +115,7 @@ func runKafkaConsumer(ctx context.Context, app *App) {
 }
 
 
-func waitForShutdown(cancel context.CancelFunc) {
+func WaitForShutdown(cancel context.CancelFunc) {
 	// catch SIGINT/SIGTERM
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
