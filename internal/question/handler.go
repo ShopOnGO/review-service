@@ -16,7 +16,6 @@ func NewQuestionHandler(router *gin.Engine, questionSvc *QuestionService) *Quest
 	questionGroup := router.Group("/reviews-service/questions")
 	{
 		questionGroup.GET("/:id", handler.GetQuestionByID)
-        questionGroup.PUT("/:id/likes", handler.AddLikeToQuestion)
 	}
 
 	return handler
@@ -38,24 +37,4 @@ func (h *QuestionHandler) GetQuestionByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, question)
-}
-
-
-func (h *QuestionHandler) AddLikeToQuestion(c *gin.Context) {
-    idStr := c.Param("id")
-    id, err := strconv.ParseUint(idStr, 10, 64)
-    if err != nil || id == 0 {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid question id"})
-        return
-    }
-
-    newLikes, err := h.questionSvc.AddLikeToQuestion(uint(id))
-    if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{
-        "likes_count":  newLikes,
-    })
 }

@@ -121,7 +121,7 @@ func (s *ReviewService) UpdateRatingAfterDelete(productVariantID uint, oldRating
     return s.ReviewRepository.UpdateRatingDelete(productVariantID, oldRating)
 }
 
-func (s *ReviewService) AddLikeToReview(reviewID uint) (uint, error) {
+func (s *ReviewService) AddLikeToReview(reviewID, user_id uint) (uint, error) {
     if reviewID == 0 {
         return 0, fmt.Errorf("invalid review id")
     }

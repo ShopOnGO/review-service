@@ -96,7 +96,7 @@ func (s *QuestionService) GetQuestionsForProduct(productVariantID uint, limit, o
     return questions, nil
 }
 
-func (s *QuestionService) AddLikeToQuestion(questionID uint) (uint, error) {
+func (s *QuestionService) AddLikeToQuestion(questionID, userID uint) (uint, error) {
     if questionID == 0 {
         return 0, fmt.Errorf("invalid question id")
     }

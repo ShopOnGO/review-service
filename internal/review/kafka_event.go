@@ -16,9 +16,10 @@ func HandleReviewEvent(msg []byte, key string, reviewSvc *ReviewService) error {
 	}
 
 	eventHandlers := map[string]func([]byte, *ReviewService) error{
-		"create": HandleCreateReviewEvent,
-		"update": HandleUpdateReviewEvent,
-		"delete": HandleDeleteReviewEvent,
+		"create":  HandleCreateReviewEvent,
+		"update":  HandleUpdateReviewEvent,
+		"delete":  HandleDeleteReviewEvent,
+		"addLike": HandleAddLikeReviewEvent,
 	}
 
 	handler, exists := eventHandlers[base.Action]
@@ -117,4 +118,30 @@ func HandleDeleteReviewEvent(msg []byte, reviewSvc *ReviewService) error {
 
 	logger.Infof("Отзыв успешно удалён. review_id: %d", event.ReviewID)
 	return nil
+}
+
+
+func HandleAddLikeReviewEvent(msg []byte, reviewSvc *ReviewService) error {
+    logger.Infof("Получено сообщение для лайка: %s", string(msg))
+
+    var event struct {
+        ReviewID uint `json:"review_id"`
+        UserID   uint `json:"user_id"`
+    }
+    if err := json.Unmarshal(msg, &event); err != nil {
+        logger.Errorf("Ошибка десериализации события добавления лайка: %v", err)
+        return err
+    }
+
+    logger.Infof("Добавляем лайк к отзыву: review_id=%d, от user_id=%d", event.ReviewID, event.UserID)
+
+    newLikes, err := reviewSvc.AddLikeToReview(event.ReviewID, event.UserID)
+    if err != nil {
+        logger.Errorf("Ошибка при добавлении лайка: %v", err)
+        return err
+    }
+
+    logger.Infof("Лайк успешно добавлен: review_id=%d, новое количество лайков=%d", event.ReviewID, newLikes)
+
+    return nil
 }

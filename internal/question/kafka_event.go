@@ -14,9 +14,10 @@ func HandleQuestionEvent(msg []byte, key string, questionSvc *QuestionService) e
 	}
 
 	eventHandlers := map[string]func([]byte, *QuestionService) error{
-		"created":  HandleCreateQuestionEvent,
-		"answered": HandleAnswerQuestionEvent,
-		"deleted":  HandleDeleteQuestionEvent,
+		"create":  HandleCreateQuestionEvent,
+		"answer":  HandleAnswerQuestionEvent,
+		"delete":  HandleDeleteQuestionEvent,
+		"addLike": HandleAddLikeQuestionEvent,
 	}
 
 	handler, exists := eventHandlers[base.Action]
@@ -88,3 +89,32 @@ func HandleDeleteQuestionEvent(msg []byte, questionSvc *QuestionService) error {
 	logger.Infof("Вопрос успешно удалён. question_id: %d", event.QuestionID)
 	return nil
 }
+
+func HandleAddLikeQuestionEvent(msg []byte, questionSvc *QuestionService) error {
+	var event struct {
+		QuestionID uint   `json:"question_id"`
+		UserID     uint   `json:"user_id"`
+	}
+	
+	if err := json.Unmarshal(msg, &event); err != nil {
+		logger.Errorf("Ошибка десериализации события лайка вопроса: %v", err)
+		return err
+	}
+
+	if event.QuestionID == 0 {
+		return fmt.Errorf("неверный question_id для лайка")
+	}
+	if event.UserID == 0 {
+		return fmt.Errorf("неверный user_id для лайка")
+	}
+
+	newLikes, err := questionSvc.AddLikeToQuestion(event.QuestionID, event.UserID)
+	if err != nil {
+		logger.Errorf("Ошибка при добавлении лайка к вопросу: %v", err)
+		return err
+	}
+
+	logger.Infof("Лайк успешно добавлен. question_id: %d, user_id: %d, new_likes: %d", event.QuestionID, event.UserID, newLikes)
+	return nil
+}
+
