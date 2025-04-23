@@ -110,3 +110,18 @@ func (s *QuestionService) AddLikeToQuestion(questionID, userID uint) (uint, erro
     }
     return newCount, nil
 }
+
+func (s *QuestionService) RemoveLikeToQuestion(questionID, userID uint) (uint, error) {
+    if questionID == 0 {
+        return 0, fmt.Errorf("invalid question id")
+    }
+
+    // Можно здесь добавить дополнительную логику:
+    // – проверка, что пользователь ещё не лайкал (если нужна такая фича)
+
+    newCount, err := s.QuestionRepository.DecrementLikes(questionID)
+    if err != nil {
+        return 0, err
+    }
+    return newCount, nil
+}

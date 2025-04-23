@@ -14,10 +14,11 @@ func HandleQuestionEvent(msg []byte, key string, questionSvc *QuestionService) e
 	}
 
 	eventHandlers := map[string]func([]byte, *QuestionService) error{
-		"create":  HandleCreateQuestionEvent,
-		"answer":  HandleAnswerQuestionEvent,
-		"delete":  HandleDeleteQuestionEvent,
-		"addLike": HandleAddLikeQuestionEvent,
+		"create":  		HandleCreateQuestionEvent,
+		"answer":  		HandleAnswerQuestionEvent,
+		"delete":  		HandleDeleteQuestionEvent,
+		"addLike": 		HandleAddLikeQuestionEvent,
+		"removeLike":	HandleRemoveLikeQuestionEvent,
 	}
 
 	handler, exists := eventHandlers[base.Action]
@@ -91,6 +92,8 @@ func HandleDeleteQuestionEvent(msg []byte, questionSvc *QuestionService) error {
 }
 
 func HandleAddLikeQuestionEvent(msg []byte, questionSvc *QuestionService) error {
+	logger.Infof("Получено сообщение для лайка: %s", string(msg))
+
 	var event struct {
 		QuestionID uint   `json:"question_id"`
 		UserID     uint   `json:"user_id"`
@@ -118,3 +121,33 @@ func HandleAddLikeQuestionEvent(msg []byte, questionSvc *QuestionService) error 
 	return nil
 }
 
+func HandleRemoveLikeQuestionEvent(msg []byte, questionSvc *QuestionService) error {
+	logger.Infof("Получено сообщение для удаления лайка: %s", string(msg))
+
+	var event struct {
+		QuestionID uint   `json:"question_id"`
+		UserID     uint   `json:"user_id"`
+	}
+	
+	if err := json.Unmarshal(msg, &event); err != nil {
+		logger.Errorf("Ошибка десериализации события удаления лайка на вопроса: %v", err)
+		return err
+	}
+	logger.Infof("Удаляем лайк у вопроса: review_id=%d, от user_id=%d", event.QuestionID, event.UserID)
+
+	if event.QuestionID == 0 {
+		return fmt.Errorf("неверный question_id для лайка")
+	}
+	if event.UserID == 0 {
+		return fmt.Errorf("неверный user_id для лайка")
+	}
+
+	newLikes, err := questionSvc.RemoveLikeToQuestion(event.QuestionID, event.UserID)
+	if err != nil {
+		logger.Errorf("Ошибка при удалении лайка к вопросу: %v", err)
+		return err
+	}
+
+	logger.Infof("Лайк успешно удален. question_id: %d, user_id: %d, new_likes: %d", event.QuestionID, event.UserID, newLikes)
+	return nil
+}

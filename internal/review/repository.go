@@ -56,6 +56,19 @@ func (r *ReviewRepository) GetReviewsByProductVariantIDPaginated(productVariantI
 	return reviews, nil
 }
 
+func (r *ReviewRepository) getLikesCount(reviewID uint) (uint, error) {
+    var likesCount uint
+    err := r.Db.Raw(`SELECT likes_count FROM reviews WHERE id = ?`, reviewID).Scan(&likesCount).Error
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            return 0, fmt.Errorf("review not found")
+        }
+        return 0, err
+    }
+
+    return likesCount, nil
+}
+
 func (r *ReviewRepository) UpdateRating(productVariantID uint, newRating int) error {
     return r.Db.Transaction(func(tx *gorm.DB) error {
         res := tx.Exec(`
@@ -129,6 +142,33 @@ func (r *ReviewRepository) IncrementLikes(reviewID uint) (uint, error) {
     return newLikes, nil
 }
 
+
+func (r *ReviewRepository) DecrementLikes(reviewID uint) (uint, error) {
+    currentLikes, err := r.getLikesCount(reviewID)
+    if err != nil {
+        return 0, err
+    }
+    if currentLikes < 1 {
+        return 0, fmt.Errorf("likes count cannot be less than 1")
+    }
+
+    var newLikes uint
+    err = r.Db.Raw(`
+        UPDATE reviews
+        SET likes_count = likes_count - 1
+        WHERE id = ?
+        RETURNING likes_count
+    `, reviewID).Scan(&newLikes).Error
+
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) || newLikes == 0 {
+            return 0, fmt.Errorf("review not found")
+        }
+        return 0, err
+    }
+
+    return newLikes, nil
+}
 
 func (r *ReviewRepository) UpdateReview(review *Review) error {
 	return r.Db.Save(review).Error

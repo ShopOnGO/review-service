@@ -135,3 +135,18 @@ func (s *ReviewService) AddLikeToReview(reviewID, user_id uint) (uint, error) {
     }
     return newCount, nil
 }
+
+func (s *ReviewService) RemoveLikeToReview(reviewID, userID uint) (uint, error) {
+    if reviewID == 0 {
+        return 0, fmt.Errorf("invalid review id")
+    }
+
+    // Можно здесь добавить дополнительную логику:
+    // – проверка, что пользователь ещё не лайкал (если нужна такая фича)
+
+    newCount, err := s.ReviewRepository.DecrementLikes(reviewID)
+    if err != nil {
+        return 0, err
+    }
+    return newCount, nil
+}

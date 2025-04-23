@@ -40,6 +40,19 @@ func (r *QuestionRepository) GetQuestionByID(id uint) (*Question, error) {
 	return &question, nil
 }
 
+func (r *QuestionRepository) getLikesCount(questionID uint) (uint, error) {
+    var likesCount uint
+    err := r.Db.Raw(`SELECT likes_count FROM questions WHERE id = ?`, questionID).Scan(&likesCount).Error
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            return 0, fmt.Errorf("question not found")
+        }
+        return 0, err
+    }
+
+    return likesCount, nil
+}
+
 func (r *QuestionRepository) UpdateQuestion(question *Question) error {
 	return r.Db.Save(question).Error
 }
@@ -74,6 +87,33 @@ func (r *QuestionRepository) IncrementLikes(questionID uint) (uint, error) {
     err := r.Db.Raw(`
         UPDATE questions
         SET likes_count = likes_count + 1
+        WHERE id = ?
+        RETURNING likes_count
+    `, questionID).Scan(&newLikes).Error
+
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) || newLikes == 0 {
+            return 0, fmt.Errorf("question not found")
+        }
+        return 0, err
+    }
+
+    return newLikes, nil
+}
+
+func (r *QuestionRepository) DecrementLikes(questionID uint) (uint, error) {
+    currentLikes, err := r.getLikesCount(questionID)
+    if err != nil {
+        return 0, err
+    }
+    if currentLikes < 1 {
+        return 0, fmt.Errorf("likes count cannot be less than 1")
+    }
+
+	var newLikes uint
+    err = r.Db.Raw(`
+        UPDATE questions
+        SET likes_count = likes_count - 1
         WHERE id = ?
         RETURNING likes_count
     `, questionID).Scan(&newLikes).Error
