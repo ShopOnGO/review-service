@@ -21,7 +21,15 @@ func NewQuestionHandler(router *gin.Engine, questionSvc *QuestionService) *Quest
 	return handler
 }
 
-
+// GetQuestionByID godoc
+// @Summary Получить вопрос по ID
+// @Description Возвращает вопрос по его уникальному идентификатору
+// @Tags Вопросы
+// @Param id path int true "ID вопроса"
+// @Success 200 {object} question.Question
+// @Failure 400 {object} gin.H "Некорректный ID"
+// @Failure 404 {object} gin.H "Вопрос не найден"
+// @Router /reviews-service/questions/{id} [get]
 func (h *QuestionHandler) GetQuestionByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 64)

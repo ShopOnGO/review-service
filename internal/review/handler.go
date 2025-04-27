@@ -13,7 +13,7 @@ type ReviewHandler struct {
 func NewReviewHandler(router *gin.Engine,reviewSvc *ReviewService) *ReviewHandler {
 	handler := &ReviewHandler{reviewSvc: reviewSvc}
 
-	reviewGroup := router.Group("/reviews-service")
+	reviewGroup := router.Group("/reviews-service//reviews")
 	{
 		reviewGroup.GET("/:id", handler.getReviewByID)
 	}
@@ -21,6 +21,15 @@ func NewReviewHandler(router *gin.Engine,reviewSvc *ReviewService) *ReviewHandle
 	return handler
 }
 
+// getReviewByID godoc
+// @Summary Получить отзыв по ID
+// @Description Возвращает отзыв по его уникальному идентификатору
+// @Tags Отзывы
+// @Param id path int true "ID отзыва"
+// @Success 200 {object} review.Review
+// @Failure 400 {object} gin.H "Некорректный ID"
+// @Failure 404 {object} gin.H "Отзыв не найден"
+// @Router /reviews-service/reviews/{id} [get]
 func (h *ReviewHandler) getReviewByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 64)
