@@ -116,7 +116,6 @@ func RunKafkaConsumer(ctx context.Context, app *App) {
 
 
 func WaitForShutdown(cancel context.CancelFunc) {
-	// catch SIGINT/SIGTERM
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
@@ -124,7 +123,6 @@ func WaitForShutdown(cancel context.CancelFunc) {
 	logger.Info("Shutdown signal received")
 	cancel()
 
-	// Graceful HTTP shutdown
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer shutdownCancel()
 	if httpSrv != nil {
