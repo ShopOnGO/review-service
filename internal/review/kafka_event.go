@@ -38,16 +38,16 @@ func HandleCreateReviewEvent(msg []byte, reviewSvc *ReviewService) error {
 	}
 
 	event := base.Review
-	logger.Infof("Получены данные для создания отзыва: product_variant_id=%d, user_id=%d, rating=%d, likes_count=%d, comment=%q",
-		event.ProductVariantID, base.UserID, event.Rating, event.LikesCount, event.Comment)
+	logger.Infof("Получены данные для создания отзыва: product_id=%d, user_id=%d, rating=%d, likes_count=%d, comment=%q",
+		event.ProductID, base.UserID, event.Rating, event.LikesCount, event.Comment)
 
-	reviewCreated, err := reviewSvc.AddReview(event.ProductVariantID, base.UserID, event.Rating, event.LikesCount, event.Comment)
+	reviewCreated, err := reviewSvc.AddReview(event.ProductID, base.UserID, event.Rating, event.LikesCount, event.Comment)
 	if err != nil {
 		logger.Errorf("Ошибка при создании отзыва: %v", err)
 		return err
 	}
 
-	if err := reviewSvc.UpdateRatingAfterCreate(reviewCreated.ProductVariantID, reviewCreated.Rating); err != nil {
+	if err := reviewSvc.UpdateRatingAfterCreate(reviewCreated.ProductID, reviewCreated.Rating); err != nil {
 		logger.Errorf("Ошибка при обновлении агрегатов рейтинга после создания: %v", err)
 	}
 
@@ -87,7 +87,7 @@ func HandleUpdateReviewEvent(msg []byte, reviewSvc *ReviewService) error {
 	}
 
 	if event.Rating != nil {
-		if err := reviewSvc.UpdateRatingAfterUpdate(oldReview.ProductVariantID, int(oldReview.Rating), int(newRating)); err != nil {
+		if err := reviewSvc.UpdateRatingAfterUpdate(oldReview.ProductID, int(oldReview.Rating), int(newRating)); err != nil {
 			logger.Errorf("Ошибка при обновлении агрегатов рейтинга после редактирования: %v", err)
 		}
 	}
@@ -113,7 +113,7 @@ func HandleDeleteReviewEvent(msg []byte, reviewSvc *ReviewService) error {
 		return err
 	}
 
-	if err := reviewSvc.UpdateRatingAfterDelete(oldReview.ProductVariantID, int(oldReview.Rating)); err != nil {
+	if err := reviewSvc.UpdateRatingAfterDelete(oldReview.ProductID, int(oldReview.Rating)); err != nil {
 		logger.Errorf("Ошибка при обновлении агрегатов рейтинга после удаления: %v", err)
 	}
 

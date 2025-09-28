@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	github.com/ShopOnGO/ShopOnGO v0.0.0-20250419132451-d711ea502a40
-	github.com/ShopOnGO/review-proto v0.0.0-20250421111954-6f258e82d71b
+	github.com/ShopOnGO/review-proto v0.0.0-20250928085945-8f2713ee0db8
 	github.com/gin-gonic/gin v1.10.0
 	github.com/joho/godotenv v1.5.1
 	github.com/segmentio/kafka-go v0.4.43
@@ -24,6 +24,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.26.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.2 // indirect

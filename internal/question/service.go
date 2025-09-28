@@ -16,8 +16,8 @@ func NewQuestionService(questionRepo *QuestionRepository) *QuestionService {
 	}
 }
 
-func (s *QuestionService) AddQuestion(productVariantID uint, questionText string, userID *uint, guestID *string) (*Question, error) {
-	if productVariantID == 0 || questionText == "" {
+func (s *QuestionService) AddQuestion(productID uint, questionText string, userID *uint, guestID *string) (*Question, error) {
+	if productID == 0 || questionText == "" {
 		return nil, fmt.Errorf("invalid input parameters")
 	}
 	var guestIDBytes []byte
@@ -26,10 +26,10 @@ func (s *QuestionService) AddQuestion(productVariantID uint, questionText string
 	}
 
 	question := &Question{
-		ProductVariantID: productVariantID,
-		QuestionText:     questionText,
-		UserID:           userID,
-        GuestID:          guestIDBytes,
+		ProductID:		productID,
+		QuestionText:   questionText,
+		UserID:         userID,
+        GuestID:        guestIDBytes,
 	}
 
 	if err := s.QuestionRepository.CreateQuestion(question); err != nil {
@@ -82,14 +82,14 @@ func (s *QuestionService) DeleteQuestion(questionID uint) error {
 }
 
 
-func (s *QuestionService) GetQuestionsForProduct(productVariantID uint, limit, offset int) ([]*Question, error) {
-    if productVariantID == 0 {
-        return nil, fmt.Errorf("productVariantID is required")
+func (s *QuestionService) GetQuestionsForProduct(productID uint, limit, offset int) ([]*Question, error) {
+    if productID == 0 {
+        return nil, fmt.Errorf("productID is required")
     }
 
-    questions, err := s.QuestionRepository.GetQuestionsByProductVariantIDPaginated(productVariantID, limit, offset)
+    questions, err := s.QuestionRepository.GetQuestionsByProductIDPaginated(productID, limit, offset)
     if err != nil {
-        logger.Errorf("Error getting paginated questions for product %d: %v", productVariantID, err)
+        logger.Errorf("Error getting paginated questions for product %d: %v", productID, err)
         return nil, err
     }
 

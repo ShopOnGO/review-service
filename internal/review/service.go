@@ -16,17 +16,17 @@ func NewReviewService(reviewRepo *ReviewRepository) *ReviewService {
 	}
 }
 
-func (s *ReviewService) AddReview(productVariantID, userID uint, rating int16,likesCount int, comment string) (*Review, error) {
-	if productVariantID == 0 || userID == 0 {
-		return nil, fmt.Errorf("invalid product_variant_id or user_id")
+func (s *ReviewService) AddReview(productID, userID uint, rating int16, likesCount int, comment string) (*Review, error) {
+	if productID == 0 || userID == 0 {
+		return nil, fmt.Errorf("invalid product_id or user_id")
 	}
 
 	review := &Review{
-		ProductVariantID: productVariantID,
-		UserID:           userID,
-		Rating:           rating,
-		LikesCount: 	  likesCount,
-		Comment:          comment,
+		ProductID: 	productID,
+		UserID:     userID,
+		Rating:     rating,
+		LikesCount:	likesCount,
+		Comment:    comment,
 	}
 
 	if err := s.ReviewRepository.CreateReview(review); err != nil {
@@ -95,12 +95,12 @@ func (s *ReviewService) DeleteReview(reviewID uint) error {
 	return nil
 }
 
-func (s *ReviewService) GetReviewsForProduct(productVariantID uint, limit, offset int) ([]*Review, error) {
-	if productVariantID == 0 {
-		return nil, fmt.Errorf("productVariantID is required")
+func (s *ReviewService) GetReviewsForProduct(productID uint, limit, offset int) ([]*Review, error) {
+	if productID == 0 {
+		return nil, fmt.Errorf("productID is required")
 	}
 
-	reviews, err := s.ReviewRepository.GetReviewsByProductVariantIDPaginated(productVariantID, limit, offset)
+	reviews, err := s.ReviewRepository.GetReviewsByProductIDPaginated(productID, limit, offset)
 	if err != nil {
 		logger.Errorf("Error getting paginated reviews: %v", err)
 		return nil, err
@@ -109,16 +109,16 @@ func (s *ReviewService) GetReviewsForProduct(productVariantID uint, limit, offse
 	return reviews, nil
 }
 
-func (s *ReviewService) UpdateRatingAfterCreate(productVariantID uint, rating int16) error {
-    return s.ReviewRepository.UpdateRating(productVariantID, int(rating))
+func (s *ReviewService) UpdateRatingAfterCreate(productID uint, rating int16) error {
+    return s.ReviewRepository.UpdateRating(productID, int(rating))
 }
 
-func (s *ReviewService) UpdateRatingAfterUpdate(productVariantID uint, oldRating, newRating int) error {
-    return s.ReviewRepository.UpdateRatingDelta(productVariantID, oldRating, newRating)
+func (s *ReviewService) UpdateRatingAfterUpdate(productID uint, oldRating, newRating int) error {
+    return s.ReviewRepository.UpdateRatingDelta(productID, oldRating, newRating)
 }
 
-func (s *ReviewService) UpdateRatingAfterDelete(productVariantID uint, oldRating int) error {
-    return s.ReviewRepository.UpdateRatingDelete(productVariantID, oldRating)
+func (s *ReviewService) UpdateRatingAfterDelete(productID uint, oldRating int) error {
+    return s.ReviewRepository.UpdateRatingDelete(productID, oldRating)
 }
 
 func (s *ReviewService) AddLikeToReview(reviewID, user_id uint) (uint, error) {

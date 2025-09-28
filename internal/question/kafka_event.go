@@ -35,16 +35,16 @@ func HandleCreateQuestionEvent(msg []byte, questionSvc *QuestionService) error {
 		logger.Errorf("Ошибка десериализации события создания вопроса: %v", err)
 		return err
 	}
-	logger.Infof("Создаём вопрос: variant=%d, text=%q, user=%v, guest=%v",
-		event.ProductVariantID, event.QuestionText, event.Author.UserID, event.Author.GuestID)
+	logger.Infof("Создаём вопрос: product_id=%d, text=%q, user=%v, guest=%v",
+		event.ProductID, event.QuestionText, event.Author.UserID, event.Author.GuestID)
 
-	_, err := questionSvc.AddQuestion(event.ProductVariantID, event.QuestionText, event.Author.UserID, event.Author.GuestID)
+	_, err := questionSvc.AddQuestion(event.ProductID, event.QuestionText, event.Author.UserID, event.Author.GuestID)
 	if err != nil {
 		logger.Errorf("Ошибка при создании вопроса: %v", err)
 		return err
 	}
 
-	logger.Infof("Вопрос успешно создан для product_variant_id: %d", event.ProductVariantID)
+	logger.Infof("Вопрос успешно создан для product_id: %d", event.ProductID)
 	return nil
 }
 

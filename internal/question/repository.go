@@ -22,9 +22,9 @@ func (r *QuestionRepository) CreateQuestion(question *Question) error {
 	return r.Db.Create(question).Error
 }
 
-func (r *QuestionRepository) GetQuestionsByProductVariantID(productVariantID uint) ([]Question, error) {
+func (r *QuestionRepository) GetQuestionsByProductID(productID uint) ([]Question, error) {
 	var questions []Question
-	err := r.Db.Where("product_variant_id = ?", productVariantID).Find(&questions).Error
+	err := r.Db.Where("product_id = ?", productID).Find(&questions).Error
 	if err != nil {
 		return nil, err
 	}
@@ -69,10 +69,10 @@ func (r *QuestionRepository) DeleteQuestionByID(id uint) error {
 	return r.Db.Delete(&Question{}, id).Error
 }
 
-func (r *QuestionRepository) GetQuestionsByProductVariantIDPaginated(productVariantID uint, limit, offset int) ([]*Question, error) {
+func (r *QuestionRepository) GetQuestionsByProductIDPaginated(productID uint, limit, offset int) ([]*Question, error) {
     var questions []*Question
     result := r.Db.
-        Where("product_variant_id = ?", productVariantID).
+        Where("product_id = ?", productID).
         Limit(limit).
         Offset(offset).
         Order("created_at DESC").

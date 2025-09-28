@@ -17,7 +17,7 @@ func NewGrpcQuestionService(svc *QuestionService) *GrpcQuestionService {
 }
 
 func (g *GrpcQuestionService) GetQuestionsForProduct(ctx context.Context, req *pb.GetQuestionsRequest) (*pb.QuestionListResponse, error) {
-	questions, err := g.questionSvc.GetQuestionsForProduct(uint(req.ProductVariantId), int(req.Limit), int(req.Offset))
+	questions, err := g.questionSvc.GetQuestionsForProduct(uint(req.ProductId), int(req.Limit), int(req.Offset))
 	if err != nil {
 		return nil, err
 	}
@@ -37,11 +37,11 @@ func (g *GrpcQuestionService) GetQuestionsForProduct(ctx context.Context, req *p
 		}
 
 		protoQuestion := &pb.Question{
-			Model:            protoModel,
-			ProductVariantId: uint32(q.ProductVariantID),
-			QuestionText:     q.QuestionText,
-			AnswerText:       q.AnswerText,
-			LikesCount: 	  int32(q.LikesCount),
+			Model:          protoModel,
+			ProductId: 		uint32(q.ProductID),
+			QuestionText:   q.QuestionText,
+			AnswerText:     q.AnswerText,
+			LikesCount:		int32(q.LikesCount),
 		}
 
 		if q.UserID != nil {
