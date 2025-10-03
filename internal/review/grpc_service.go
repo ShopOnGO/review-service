@@ -17,7 +17,7 @@ func NewGrpcReviewService(svc *ReviewService) *GrpcReviewService {
 }
 
 func (g *GrpcReviewService) GetReviewsForProduct(ctx context.Context, req *pb.GetReviewsRequest) (*pb.ReviewListResponse, error) {
-	reviews, err := g.reviewSvc.GetReviewsForProduct(uint(req.ProductVariantId), int(req.Limit), int(req.Offset))
+	reviews, err := g.reviewSvc.GetReviewsForProduct(uint(req.ProductId), int(req.Limit), int(req.Offset))
 	if err != nil {
 		return nil, err
 	}
@@ -37,11 +37,11 @@ func (g *GrpcReviewService) GetReviewsForProduct(ctx context.Context, req *pb.Ge
 			}(),
 			},
 			
-			ProductVariantId: uint32(r.ProductVariantID),
-			UserId:           uint32(r.UserID),
-			Rating:           int32(r.Rating),
-			LikesCount: 	  int32(r.LikesCount),
-			Comment:          r.Comment,
+			ProductId:		uint32(r.ProductID),
+			UserId:       	uint32(r.UserID),
+			Rating:       	int32(r.Rating),
+			LikesCount:		int32(r.LikesCount),
+			Comment:      	r.Comment,
 		  })
 		  
 	}

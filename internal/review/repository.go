@@ -31,19 +31,19 @@ func (r *ReviewRepository) GetReviewByID(id uint) (*Review, error) {
 	return &review, nil
 }
 
-func (r *ReviewRepository) GetReviewsByProductVariantID(productVariantID uint) ([]Review, error) {
+func (r *ReviewRepository) GetReviewsByProductID(productID uint) ([]Review, error) {
 	var reviews []Review
-	err := r.Db.Where("product_variant_id = ?", productVariantID).Find(&reviews).Error
+	err := r.Db.Where("product_id = ?", productID).Find(&reviews).Error
 	if err != nil {
 		return nil, err
 	}
 	return reviews, nil
 }
 
-func (r *ReviewRepository) GetReviewsByProductVariantIDPaginated(productVariantID uint, limit, offset int) ([]*Review, error) {
+func (r *ReviewRepository) GetReviewsByProductIDPaginated(productID uint, limit, offset int) ([]*Review, error) {
 	var reviews []*Review
 	result := r.Db.
-		Where("product_variant_id = ?", productVariantID).
+		Where("product_id = ?", productID).
 		Limit(limit).
 		Offset(offset).
 		Order("created_at DESC"). //сначала новые отзывы, можно изменить
@@ -69,16 +69,16 @@ func (r *ReviewRepository) getLikesCount(reviewID uint) (uint, error) {
     return likesCount, nil
 }
 
-func (r *ReviewRepository) UpdateRating(productVariantID uint, newRating int) error {
+func (r *ReviewRepository) UpdateRating(productID uint, newRating int) error {
     return r.Db.Transaction(func(tx *gorm.DB) error {
         res := tx.Exec(`
-            UPDATE product_variants
+            UPDATE products
             SET 
                 review_count   = review_count + ?,
                 rating_sum     = rating_sum   + ?,
                 rating = (rating_sum + ?)::numeric / (review_count + 1)
             WHERE id = ?
-        `, 1, newRating, newRating, productVariantID)
+        `, 1, newRating, newRating, productID)
 
         if res.Error != nil {
             return res.Error
@@ -88,25 +88,25 @@ func (r *ReviewRepository) UpdateRating(productVariantID uint, newRating int) er
 }
 
 // UpdateRatingDelta — корректируем сумму при update (count не меняется)
-func (r *ReviewRepository) UpdateRatingDelta(productVariantID uint, oldRating, newRating int) error {
+func (r *ReviewRepository) UpdateRatingDelta(productID uint, oldRating, newRating int) error {
     delta := newRating - oldRating
     return r.Db.Transaction(func(tx *gorm.DB) error {
         res := tx.Exec(`
-            UPDATE product_variants
+            UPDATE products
             SET 
               rating_sum     = rating_sum + ?,
               rating = (rating_sum + ?)::numeric / review_count
             WHERE id = ?`,
-            delta, delta, productVariantID,
+            delta, delta, productID,
         )
         return res.Error
     })
 }
 
-func (r *ReviewRepository) UpdateRatingDelete(productVariantID uint, oldRating int) error {
+func (r *ReviewRepository) UpdateRatingDelete(productID uint, oldRating int) error {
     return r.Db.Transaction(func(tx *gorm.DB) error {
         res := tx.Exec(`
-            UPDATE product_variants
+            UPDATE products
             SET 
               review_count   = review_count - 1,
               rating_sum     = rating_sum   - ?,
@@ -116,7 +116,7 @@ func (r *ReviewRepository) UpdateRatingDelete(productVariantID uint, oldRating i
                 ELSE 0
               END
             WHERE id = ?`,
-            oldRating, oldRating, productVariantID,
+            oldRating, oldRating, productID,
         )
         return res.Error
     })

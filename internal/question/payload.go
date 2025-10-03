@@ -10,14 +10,14 @@ type Author struct {
 }
 
 type QuestionCreatedEvent struct {
-    Action           string  `json:"action"`
-    ProductVariantID uint    `json:"product_variant_id"`
-    QuestionText     string  `json:"question_text"`
-    Author           Author  `json:"author"`
+    Action          string  `json:"action"`
+    ProductID 		uint    `json:"product_id"`
+    QuestionText    string  `json:"question_text"`
+    Author          Author  `json:"author"`
 }
 
 type QuestionGetEvent struct {
-	ProductVariantID uint `json:"product_variant_id"`
+	ProductID uint `json:"product_id"`
 }
 
 type QuestionAnsweredEvent struct {
