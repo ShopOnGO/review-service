@@ -1,0 +1,124 @@
+basePath: /reviews
+definitions:
+  gin.H:
+    additionalProperties: {}
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  internal_question.Question:
+    properties:
+      answer_text:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      guest_id:
+        items:
+          type: integer
+        type: array
+      id:
+        type: integer
+      likes_count:
+        type: integer
+      product_variant_id:
+        type: integer
+      question_text:
+        type: string
+      updatedAt:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  internal_review.Review:
+    properties:
+      comment:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      likes_count:
+        type: integer
+      product_variant_id:
+        type: integer
+      rating:
+        type: integer
+      updatedAt:
+        type: string
+      user_id:
+        type: integer
+    type: object
+host: localhost::8080
+info:
+  contact:
+    email: support@shopongo.com
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API documentation for the ShopOnGO Review Service.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Review Service API
+  version: "1.0"
+paths:
+  /reviews-service/questions/{id}:
+    get:
+      description: Возвращает вопрос по его уникальному идентификатору
+      parameters:
+      - description: ID вопроса
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_question.Question'
+        "400":
+          description: Некорректный ID
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Вопрос не найден
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Получить вопрос по ID
+      tags:
+      - Вопросы
+  /reviews-service/reviews/{id}:
+    get:
+      description: Возвращает отзыв по его уникальному идентификатору
+      parameters:
+      - description: ID отзыва
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_review.Review'
+        "400":
+          description: Некорректный ID
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Отзыв не найден
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Получить отзыв по ID
+      tags:
+      - Отзывы
+swagger: "2.0"
