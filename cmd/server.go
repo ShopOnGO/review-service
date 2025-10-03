@@ -9,7 +9,20 @@ import (
 	"google.golang.org/grpc"
 )
 
+// @title           Review Service API
+// @version         1.0
+// @description     This is the API documentation for the ShopOnGO Review Service.
+// @termsOfService  http://swagger.io/terms/
 
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@shopongo.com
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost::8080
+// @BasePath  /reviews
 func main() {
 	services := app.InitServices()
 
